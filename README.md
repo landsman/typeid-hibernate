@@ -32,7 +32,7 @@ implementation("com.github.landsman:typeid-hibernate:0.0.1")
 ```java
 public class TestUserEntity {
     @Id
-    @TypeIdHibernate(entityPrefix = "u")
+    @TypeIdHibernate(prefix = "u")
     private String id;
 }
 ```

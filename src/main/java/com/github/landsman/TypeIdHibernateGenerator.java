@@ -17,7 +17,7 @@ public class TypeIdHibernateGenerator implements IdentifierGenerator {
         for (Field field : entityClass.getDeclaredFields()) {
             if (field.isAnnotationPresent(TypeIdHibernate.class)) {
                 TypeIdHibernate annotation = field.getAnnotation(TypeIdHibernate.class);
-                prefix = annotation.entityPrefix();
+                prefix = annotation.prefix();
                 break;
             }
         }

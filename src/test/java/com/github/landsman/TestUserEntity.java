@@ -1,7 +1,7 @@
 package com.github.landsman;
 
 public class TestUserEntity {
-    @TypeIdHibernate(entityPrefix = "u")
+    @TypeIdHibernate(prefix = "u")
     private String id;
 
     public String getId() {

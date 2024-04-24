@@ -13,5 +13,5 @@ import static java.lang.annotation.ElementType.METHOD;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ FIELD, METHOD })
 public @interface TypeIdHibernate {
-    String entityPrefix();
+    String prefix();
 }
