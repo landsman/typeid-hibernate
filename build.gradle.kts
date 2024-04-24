@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "com.github.landsman"
-version = "0.1"
+version = "0.0.1"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_17
@@ -52,6 +52,7 @@ publishing {
                 name.set("typeid-hibernate")
                 description.set("Custom ID generator for Hibernate, Spring Framework inspired by @stripe")
                 url.set("https://github.com/landsman/typeid-hibernate")
+                version = project.version.toString()
 
                 licenses {
                     license {
