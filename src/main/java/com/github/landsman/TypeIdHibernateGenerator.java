@@ -14,6 +14,10 @@ import java.lang.reflect.Field;
  */
 public class TypeIdHibernateGenerator implements IdentifierGenerator {
 
+    /**
+     * Default constructor.
+     * Initializes a new instance of the TypeIdHibernateGenerator.
+     */
     public TypeIdHibernateGenerator() {
         super();
     }
