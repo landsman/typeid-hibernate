@@ -1,2 +1,2 @@
-rootProject.name = "hibernate-type-id"
+rootProject.name = "typeid-hibernate"
 
