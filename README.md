@@ -11,20 +11,24 @@ Read more about TypeIDs in their [spec](https://github.com/jetpack-io/typeid).
 
 Starting with version `0.0.1`, `typeid-hibernate` requires at least Java 17.
 
-To install via Maven:
-
-```xml
-<dependency>
-    <groupId>com.github.landsman</groupId>
-    <artifactId>typeid-hibernate</artifactId>
-    <version>0.0.1</version>
-</dependency>
-```
-
 For installation via Gradle:
 
 ```kotlin
-implementation("com.github.landsman:typeid-hibernate:0.0.1")
+repositories {
+    mavenCentral()
+    maven {
+        name = "GitHubPackages"
+        url = uri("https://maven.pkg.github.com/landsman/typeid-hibernate")
+        credentials {
+            username = System.getenv("GITHUB_ACTOR")
+            password = System.getenv("GITHUB_TOKEN")
+        }
+    }
+}
+
+dependencies {
+    implementation("com.github.landsman:typeid-hibernate:0.0.1")
+}
 ```
 
 ## Usage
