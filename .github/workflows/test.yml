@@ -1,10 +1,8 @@
-name: Maven Publish
+name: Test
 
 on:
   workflow_dispatch:
-  push:
-    tags:
-      - 'v*'
+  pull_request:
 
 jobs:
   build:
@@ -41,10 +39,5 @@ jobs:
       - name: 'Grant execute permission for gradlew'
         run: chmod +x ./gradlew
 
-      - name: 'Build with Gradle'
-        run: ./gradlew build
-
-      - name: 'Publish to GitHub Packages'
-        run: ./gradlew publish
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: 'Build and Test with Gradle'
+        run: ./gradlew build test

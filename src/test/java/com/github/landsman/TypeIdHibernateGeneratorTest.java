@@ -9,7 +9,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.Serializable;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 public class TypeIdHibernateGeneratorTest {
@@ -25,10 +25,23 @@ public class TypeIdHibernateGeneratorTest {
     }
 
     @Test
-    public void testGenerate() throws Exception {
+    public void testPrefix() throws Exception {
         TestUserEntity entity = new TestUserEntity();
-        Serializable generatedId = generator.generate(session, entity);
+        Serializable result1 = generator.generate(session, entity);
 
-        assertTrue(generatedId.toString().startsWith("u"), "The generated ID should start with the prefix 'u'.");
+        assertTrue(result1.toString().startsWith("u"), "The generated ID should start with the prefix 'u'.");
+    }
+
+    @Test
+    public void testUnique() throws Exception {
+        TestUserEntity entity = new TestUserEntity();
+
+        Serializable result1 = generator.generate(session, entity);
+        Serializable result2 = generator.generate(session, entity);
+        Serializable result3 = generator.generate(session, entity);
+
+        assertNotEquals(result1, result2, "The generated IDs should be different.");
+        assertNotEquals(result1, result3, "The generated IDs should be different.");
+        assertNotEquals(result2, result3, "The generated IDs should be different.");
     }
 }
