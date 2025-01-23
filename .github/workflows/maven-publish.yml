@@ -38,13 +38,13 @@ jobs:
           key: ${{ runner.os }}-gradle-wrapper-${{ hashFiles('**/gradle/wrapper/gradle-wrapper.properties') }}
           restore-keys: ${{ runner.os }}-gradle-wrapper-
 
-      - name: Grant execute permission for gradlew
+      - name: 'Grant execute permission for gradlew'
         run: chmod +x ./gradlew
 
-      - name: Build with Gradle
+      - name: 'Build with Gradle'
         run: ./gradlew build
 
-      - name: Publish to GitHub Packages
+      - name: 'Publish to GitHub Packages'
         run: ./gradlew publish
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
