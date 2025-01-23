@@ -40,10 +40,6 @@ public class TypeIdHibernateGeneratorTest {
         Serializable result2 = generator.generate(session, entity);
         Serializable result3 = generator.generate(session, entity);
 
-        System.out.println(result1.toString());
-        System.out.println(result2.toString());
-        System.out.println(result3.toString());
-
         assertNotEquals(result1, result2, "The generated IDs should be different.");
         assertNotEquals(result1, result3, "The generated IDs should be different.");
         assertNotEquals(result2, result3, "The generated IDs should be different.");
