@@ -16,7 +16,7 @@ repositories {
 }
 
 dependencies {
-    implementation("org.hibernate.orm:hibernate-core:6.6.9.Final")
+    implementation("org.hibernate.orm:hibernate-core:6.6.12.Final")
     implementation("de.fxlae:typeid-java:0.3.1")
 
     testImplementation(platform("org.junit:junit-bom:5.11.4"))
