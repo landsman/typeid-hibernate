@@ -1,12 +1,9 @@
 package com.github.landsman.user;
 
 import com.github.landsman.IdTypeId;
-import com.github.landsman.OptimizedTypeIdType;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import org.hibernate.annotations.Type;
 
 /**
  * User entity for testing TypeIdHibernate generator.
@@ -16,8 +13,6 @@ import org.hibernate.annotations.Type;
 public class User {
 
     @Id
-    @Column(unique = true) // This ensures database-level uniqueness
-    @Type(OptimizedTypeIdType.class)
     @IdTypeId(prefix = "u")
     private String id;
 
