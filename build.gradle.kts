@@ -22,6 +22,11 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation("org.mockito:mockito-core:5.18.0")
     testImplementation("org.mockito:mockito-junit-jupiter:5.18.0")
+
+    // Spring Data JPA dependencies for integration tests
+    testImplementation("org.springframework.boot:spring-boot-starter-data-jpa:3.2.5")
+    testImplementation("org.springframework.boot:spring-boot-starter-test:3.2.5")
+    testImplementation("com.h2database:h2:2.2.224") // In-memory database for testing
 }
 
 tasks.withType<Test> {

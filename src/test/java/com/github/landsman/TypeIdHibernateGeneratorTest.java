@@ -7,12 +7,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.io.Serializable;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
-public class UserEntityTest {
+public class TypeIdHibernateGeneratorTest {
 
     @Mock
     private SharedSessionContractImplementor session;
@@ -25,16 +23,8 @@ public class UserEntityTest {
     }
 
     @Test
-    public void testMissingEntityPrefix() {
-        UserEntity entity = new UserEntity();
-        Serializable result1 = generator.generate(session, entity);
-
-        assertTrue(result1.toString().startsWith("u"), "The generated ID should start with the prefix 'u'.");
-    }
-
-    @Test
     public void testBunchOfUniqueIds() {
-        UserEntity entity = new UserEntity();
+        CustomEntity entity = new CustomEntity();
         int howMany = 500;
 
         // Generate 10 IDs and print them immediately
@@ -48,7 +38,7 @@ public class UserEntityTest {
 
         // Verify all IDs have the expected format (prefix_base32string)
         for (String id : generatedIds) {
-            assertTrue(id.startsWith("u_"), "ID should start with the prefix 'u_'");
+            assertTrue(id.startsWith("c_"), "ID should start with the prefix 'u_'");
             assertTrue(id.length() > 2, "ID should have content after the prefix");
         }
 
@@ -117,15 +107,7 @@ public class UserEntityTest {
     }
 }
 
-class UserEntity {
-    @TypeIdHibernate(prefix = "u", length = 8)
+class CustomEntity {
+    @TypeIdHibernate(prefix = "c", length = 8)
     private String id;
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
 }
