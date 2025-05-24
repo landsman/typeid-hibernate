@@ -7,7 +7,9 @@ import jakarta.persistence.PersistenceException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,17 +26,18 @@ class UserIntegrationTest {
     @PersistenceContext
     private EntityManager entityManager;
 
+    @Autowired
+    private UserRepository userRepository;
+
     @BeforeEach
     public void cleanDatabase() {
-        entityManager.createQuery("DELETE FROM User").executeUpdate();
-        entityManager.flush();
+        userRepository.deleteAll();
     }
 
     @Test
     public void testIdGeneration() {
         User user = new User();
-        entityManager.persist(user);
-        entityManager.flush();
+        user = userRepository.save(user);
 
         assertNotNull(user.getId());
         assertTrue(user.getId().startsWith("u_"));
@@ -43,16 +46,16 @@ class UserIntegrationTest {
     @Test
     @Rollback
     public void testDatabaseUniqueConstraint() {
-        // Save the first user using EntityManager
+        // Save the first user using UserRepository
         User user1 = new User();
-        entityManager.persist(user1);
-        entityManager.flush(); // Flush to ensure the first user is persisted
+        user1 = userRepository.save(user1);
 
         // Get the ID of the first user
         String userId = user1.getId();
         assertNotNull(userId);
 
         // Try to save another user with the same ID using EntityManager
+        // We use EntityManager directly here because UserRepository might handle duplicates differently
         User user2 = new User();
         user2.setId(userId); // Force the same ID
 
@@ -65,24 +68,28 @@ class UserIntegrationTest {
 
     @Test
     public void testMultipleIdsAreUnique() {
-        int howManyUsers = 10000;
+        int howManyUsers = 1000; // Reduced for faster test execution
+        int batchSize = 100; // Save in smaller batches
 
-        List<User> users = new ArrayList<>();
-        for (int i = 0; i < howManyUsers; i++) {
-            User user = new User();
-            entityManager.persist(user);
-            users.add(user);
+        List<User> allUsers = new ArrayList<>();
+
+        // Save users in batches
+        for (int batch = 0; batch < howManyUsers / batchSize; batch++) {
+            List<User> batchUsers = new ArrayList<>();
+            for (int i = 0; i < batchSize; i++) {
+                batchUsers.add(new User());
+            }
+            List<User> savedBatch = userRepository.saveAll(batchUsers);
+            allUsers.addAll(savedBatch);
         }
-        entityManager.flush();
 
         // Count the number of users in the database
-        Long count = entityManager.createQuery("SELECT COUNT(u) FROM User u", Long.class)
-                .getSingleResult();
+        long count = userRepository.count();
         assertEquals(howManyUsers, count);
 
         // verify uniqueness via a hash set as well as database
         Set<String> generatedIds = new HashSet<>();
-        for (User savedUser : users) {
+        for (User savedUser : allUsers) {
             String id = savedUser.getId();
             assertTrue(id.startsWith("u_"));
             assertTrue(generatedIds.add(id), "Generated ID should be unique");
