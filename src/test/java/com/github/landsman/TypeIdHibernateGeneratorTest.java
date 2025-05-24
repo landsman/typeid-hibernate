@@ -36,12 +36,81 @@ public class TypeIdHibernateGeneratorTest {
     public void testUnique() throws Exception {
         TestUserEntity entity = new TestUserEntity();
 
-        Serializable result1 = generator.generate(session, entity);
-        Serializable result2 = generator.generate(session, entity);
-        Serializable result3 = generator.generate(session, entity);
+        // Generate 10 IDs and print them immediately
+        String[] generatedIds = new String[10];
+        System.err.println("[DEBUG_LOG] Generating 10 IDs...");
+        for (int i = 0; i < 10; i++) {
+            generatedIds[i] = generator.generate(session, entity).toString();
+            System.err.println("[DEBUG_LOG] Generated ID " + (i+1) + ": " + generatedIds[i]);
+        }
 
-        assertNotEquals(result1, result2, "The generated IDs should be different.");
-        assertNotEquals(result1, result3, "The generated IDs should be different.");
-        assertNotEquals(result2, result3, "The generated IDs should be different.");
+        // Verify all IDs have the expected format (prefix_base32string)
+        for (String id : generatedIds) {
+            assertTrue(id.startsWith("u_"), "ID should start with the prefix 'u_'");
+            assertTrue(id.length() > 2, "ID should have content after the prefix");
+        }
+
+        // Verify all IDs are unique
+        for (int i = 0; i < generatedIds.length; i++) {
+            for (int j = i + 1; j < generatedIds.length; j++) {
+                assertNotEquals(generatedIds[i], generatedIds[j], 
+                    "The generated IDs should be different: " + generatedIds[i] + " vs " + generatedIds[j]);
+            }
+        }
+
+        // Analyze the differences between IDs
+        System.err.println("[DEBUG_LOG] Analyzing differences between IDs...");
+        int totalDifferentPositions = 0;
+        int comparisonCount = 0;
+
+        for (int i = 0; i < generatedIds.length; i++) {
+            for (int j = i + 1; j < generatedIds.length; j++) {
+                // Find positions where the IDs differ
+                int diffCount = getDiffCount(generatedIds, i, j);
+
+                totalDifferentPositions += diffCount;
+                comparisonCount++;
+
+                // Assert that the IDs differ in at least one position (they are unique)
+                assertTrue(diffCount > 0, "IDs should differ in at least one position");
+            }
+        }
+
+        // Calculate the average length of IDs
+        double avgLength = 0;
+        for (String id : generatedIds) {
+            avgLength += id.length();
+        }
+        avgLength /= generatedIds.length;
+
+        // Calculate and report the average number of different positions
+        double avgDifferentPositions = (double) totalDifferentPositions / comparisonCount;
+        double percentageDifferent = (avgDifferentPositions / avgLength) * 100;
+
+        System.err.println("[DEBUG_LOG] Average number of different positions between IDs (percentage): " + String.format("%.2f%%", percentageDifferent));
+
+        // Assert that on average, IDs differ in multiple positions
+        assertTrue(percentageDifferent >= 60,
+                  "On average, IDs should differ in at least one position");
+    }
+
+    private static int getDiffCount(String[] generatedIds, int i, int j) {
+        String id1 = generatedIds[i];
+        String id2 = generatedIds[j];
+        int minLength = Math.min(id1.length(), id2.length());
+
+        int diffCount = 0;
+
+        for (int pos = 0; pos < minLength; pos++) {
+            if (id1.charAt(pos) != id2.charAt(pos)) {
+                diffCount++;
+            }
+        }
+
+        // Account for length differences
+        if (id1.length() != id2.length()) {
+            diffCount += Math.abs(id1.length() - id2.length());
+        }
+        return diffCount;
     }
 }

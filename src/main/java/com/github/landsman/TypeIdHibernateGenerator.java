@@ -1,18 +1,22 @@
 package com.github.landsman;
 
-import de.fxlae.typeid.TypeId;
 import org.hibernate.HibernateException;
 import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.id.IdentifierGenerator;
 import java.io.Serializable;
 import java.lang.reflect.Field;
+import java.security.SecureRandom;
+import java.util.UUID;
 
 /**
  * Generator class for creating unique identifiers with a prefix.
- * This class implements the IdentifierGenerator interface to provide
- * custom identifier generation strategy for entities.
+ * This class implements the IdentifierGenerator interface to provide a custom identifier generation strategy for entities.
  */
 public class TypeIdHibernateGenerator implements IdentifierGenerator {
+
+    private static final SecureRandom RANDOM = new SecureRandom();
+    private static final String ALPHABET = "abcdefghijklmnopqrstuvwxyz0123456789";
+    private static final int ID_LENGTH = 24; // Length of the random part of the ID
 
     /**
      * Default constructor.
@@ -31,7 +35,31 @@ public class TypeIdHibernateGenerator implements IdentifierGenerator {
             throw new HibernateException("No field annotated with @TypeIdHibernate found");
         }
 
-        return TypeId.generate(prefix).toString();
+        // Generate a highly random ID with more character-level differences
+        return generateRandomId(prefix);
+    }
+
+    /**
+     * Generates a random ID with the given prefix.
+     * This method creates IDs that are significantly different from each other
+     * at the character level.
+     * 
+     * @param prefix the prefix for the ID
+     * @return a random ID with the given prefix
+     */
+    private String generateRandomId(String prefix) {
+        StringBuilder id = new StringBuilder(prefix).append("_");
+
+        // Add a UUID-based component (highly random)
+        String uuidPart = UUID.randomUUID().toString().replace("-", "");
+        id.append(uuidPart.substring(0, Math.min(8, uuidPart.length())));
+
+        // Add a random component with characters from the alphabet
+        for (int i = 0; i < ID_LENGTH - 8; i++) {
+            id.append(ALPHABET.charAt(RANDOM.nextInt(ALPHABET.length())));
+        }
+
+        return id.toString();
     }
 
     /**
