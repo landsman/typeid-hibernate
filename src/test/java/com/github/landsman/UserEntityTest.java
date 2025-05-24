@@ -12,7 +12,7 @@ import java.io.Serializable;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
-public class TypeIdHibernateGeneratorTest {
+public class UserEntityTest {
 
     @Mock
     private SharedSessionContractImplementor session;
@@ -25,23 +25,25 @@ public class TypeIdHibernateGeneratorTest {
     }
 
     @Test
-    public void testPrefix() throws Exception {
-        TestUserEntity entity = new TestUserEntity();
+    public void testMissingEntityPrefix() {
+        UserEntity entity = new UserEntity();
         Serializable result1 = generator.generate(session, entity);
 
         assertTrue(result1.toString().startsWith("u"), "The generated ID should start with the prefix 'u'.");
     }
 
     @Test
-    public void testUnique() throws Exception {
-        TestUserEntity entity = new TestUserEntity();
+    public void testBunchOfUniqueIds() {
+        UserEntity entity = new UserEntity();
+        int howMany = 500;
 
         // Generate 10 IDs and print them immediately
-        String[] generatedIds = new String[10];
-        System.err.println("[DEBUG_LOG] Generating 10 IDs...");
-        for (int i = 0; i < 10; i++) {
+        String[] generatedIds = new String[howMany];
+        System.out.println("[DEBUG_LOG] Generating " + howMany + " IDs...");
+
+        for (int i = 0; i < howMany; i++) {
             generatedIds[i] = generator.generate(session, entity).toString();
-            System.err.println("[DEBUG_LOG] Generated ID " + (i+1) + ": " + generatedIds[i]);
+            System.out.println("[DEBUG_LOG] Generated ID " + (i+1) + ": " + generatedIds[i]);
         }
 
         // Verify all IDs have the expected format (prefix_base32string)
@@ -112,5 +114,18 @@ public class TypeIdHibernateGeneratorTest {
             diffCount += Math.abs(id1.length() - id2.length());
         }
         return diffCount;
+    }
+}
+
+class UserEntity {
+    @TypeIdHibernate(prefix = "u", length = 24)
+    private String id;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 }

@@ -22,4 +22,6 @@ public @interface TypeIdHibernate {
      * @return the prefix for the generated id
      */
     String prefix();
+
+    int length() default 10;
 }
