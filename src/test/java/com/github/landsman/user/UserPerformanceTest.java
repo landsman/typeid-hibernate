@@ -38,8 +38,8 @@ class UserPerformanceTest {
 
     @Test
     public void testBulkInsertPerformance() {
-        int batchSize = 50;
-        int totalUsers = 200; // Reduced for faster test execution
+        int batchSize = 100;
+        int totalUsers = 10000;
         List<Long> batchTimes = new ArrayList<>();
 
         // Warm up
@@ -90,7 +90,7 @@ class UserPerformanceTest {
     @Test
     public void testQueryPerformance() {
         // Prepare test data
-        int testDataSize = 100; // Reduced for faster test execution
+        int testDataSize = 10000;
         List<User> users = new ArrayList<>();
         for (int i = 0; i < testDataSize; i++) {
             users.add(new User());
@@ -127,8 +127,8 @@ class UserPerformanceTest {
 
     @Test
     public void testConcurrentInsertPerformance() throws InterruptedException {
-        int threadsCount = 2; // Reduced for faster test execution
-        int recordsPerThread = 25; // Reduced for faster test execution
+        int threadsCount = 2;
+        int recordsPerThread = 500;
         CountDownLatch latch = new CountDownLatch(threadsCount);
         List<Future<List<Long>>> futures = new ArrayList<>();
         ExecutorService executorService = Executors.newFixedThreadPool(threadsCount);
