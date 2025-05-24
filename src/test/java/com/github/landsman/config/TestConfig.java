@@ -16,7 +16,6 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.testcontainers.containers.PostgreSQLContainer;
 
 import javax.sql.DataSource;
-import java.util.Properties;
 
 @Configuration
 @EnableAutoConfiguration
@@ -63,14 +62,10 @@ public class TestConfig {
 
         HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
         vendorAdapter.setGenerateDdl(false);
-        vendorAdapter.setShowSql(true);
+        vendorAdapter.setShowSql(false);
         em.setJpaVendorAdapter(vendorAdapter);
 
-        Properties properties = new Properties();
-        properties.setProperty("hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect");
-        properties.setProperty("hibernate.hbm2ddl.auto", "validate");
-        properties.setProperty("hibernate.format_sql", "true");
-        em.setJpaProperties(properties);
+        // Properties are configured in application-test.properties
 
         return em;
     }
