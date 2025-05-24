@@ -2,6 +2,7 @@ package com.github.landsman.user;
 
 import com.github.landsman.IdTypeId;
 import com.github.landsman.OptimizedTypeIdType;
+import com.github.landsman.TypeId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -17,17 +18,17 @@ public class User {
     @Id
     @IdTypeId(prefix = "u")
     @Type(OptimizedTypeIdType.class)
-    private String id;
+    private TypeId id;
 
     // Default constructor required by JPA
     public User() {
     }
 
-    public String getId() {
+    public TypeId getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(TypeId id) {
         this.id = id;
     }
 }
