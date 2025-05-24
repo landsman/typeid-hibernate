@@ -41,7 +41,7 @@ Tests use JUnit 5 with Mockito for mocking. To run tests:
 ./gradlew test
 
 # Run a specific test class
-./gradlew test --tests "com.github.landsman.TypeIdHibernateGeneratorTest"
+./gradlew test --tests "com.github.landsman.UserEntityTest"
 ```
 
 ### Adding New Tests

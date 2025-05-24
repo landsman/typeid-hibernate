@@ -16,7 +16,6 @@ public class TypeIdHibernateGenerator implements IdentifierGenerator {
 
     private static final SecureRandom RANDOM = new SecureRandom();
     private static final String ALPHABET = "abcdefghijklmnopqrstuvwxyz0123456789";
-    private static final int ID_LENGTH = 24; // Length of the random part of the ID
 
     /**
      * Default constructor.
@@ -29,14 +28,14 @@ public class TypeIdHibernateGenerator implements IdentifierGenerator {
     @Override
     public Serializable generate(SharedSessionContractImplementor session, Object obj) throws HibernateException {
         Class<?> entityClass = obj.getClass();
-        String prefix = findPrefixFromAnnotation(entityClass);
+        TypeIdHibernate data = getDataFromAnnotation(entityClass);
 
-        if (prefix == null) {
+        assert data != null;
+        if (data.prefix() == null) {
             throw new HibernateException("No field annotated with @TypeIdHibernate found");
         }
 
-        // Generate a highly random ID with more character-level differences
-        return generateRandomId(prefix);
+        return generateRandomId(data.prefix(), data.length());
     }
 
     /**
@@ -47,7 +46,7 @@ public class TypeIdHibernateGenerator implements IdentifierGenerator {
      * @param prefix the prefix for the ID
      * @return a random ID with the given prefix
      */
-    private String generateRandomId(String prefix) {
+    private String generateRandomId(String prefix, int length) {
         StringBuilder id = new StringBuilder(prefix).append("_");
 
         // Add a UUID-based component (highly random)
@@ -55,7 +54,7 @@ public class TypeIdHibernateGenerator implements IdentifierGenerator {
         id.append(uuidPart, 0, Math.min(8, uuidPart.length()));
 
         // Add a random component with characters from the alphabet
-        for (int i = 0; i < ID_LENGTH - 8; i++) {
+        for (int i = 0; i < length - 8; i++) {
             id.append(ALPHABET.charAt(RANDOM.nextInt(ALPHABET.length())));
         }
 
@@ -63,16 +62,14 @@ public class TypeIdHibernateGenerator implements IdentifierGenerator {
     }
 
     /**
-     * Find the prefix from the annotation @TypeIdHibernate.
+     * Get annotation data @TypeIdHibernate.
      * @param entityClass the entity class
-     * @return the prefix
      */
-    private String findPrefixFromAnnotation(Class<?> entityClass) {
+    private TypeIdHibernate getDataFromAnnotation(Class<?> entityClass) {
         for (Field field : entityClass.getDeclaredFields()) {
             if (field.isAnnotationPresent(TypeIdHibernate.class)) {
                 field.setAccessible(true);
-                TypeIdHibernate annotation = field.getAnnotation(TypeIdHibernate.class);
-                return annotation.prefix();
+                return field.getAnnotation(TypeIdHibernate.class);
             }
         }
         return null;
