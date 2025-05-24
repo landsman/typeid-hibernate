@@ -1,6 +1,6 @@
 package com.github.landsman.user;
 
-import com.github.landsman.TestApplication;
+import com.github.landsman.config.TestApplication;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.PersistenceException;

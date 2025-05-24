@@ -1,4 +1,4 @@
-package com.github.landsman;
+package com.github.landsman.config;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
