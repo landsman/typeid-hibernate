@@ -85,7 +85,7 @@ class UserPerformanceTest {
         // Count the number of users in the database
         Long count = entityManager.createQuery("SELECT COUNT(u) FROM User u", Long.class)
                 .getSingleResult();
-        assertEquals(totalUsers, count);
+        assertEquals(totalUsers + 10, count); // Add 10 for the warm-up users
     }
 
     @Test
