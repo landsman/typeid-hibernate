@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -68,7 +67,7 @@ class UserIntegrationTest {
 
     @Test
     public void testMultipleIdsAreUnique() {
-        int howManyUsers = 1000; // Reduced for faster test execution
+        int howManyUsers = 10000;
         int batchSize = 100; // Save in smaller batches
 
         List<User> allUsers = new ArrayList<>();
