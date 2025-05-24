@@ -25,9 +25,6 @@ class UserPerformanceTest {
     @PersistenceContext
     private EntityManager entityManager;
 
-    @PersistenceUnit
-    private EntityManagerFactory entityManagerFactory;
-
     @Autowired
     private UserRepository userRepository;
 
