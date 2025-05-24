@@ -118,7 +118,7 @@ public class UserEntityTest {
 }
 
 class UserEntity {
-    @TypeIdHibernate(prefix = "u", length = 24)
+    @TypeIdHibernate(prefix = "u", length = 8)
     private String id;
 
     public String getId() {
