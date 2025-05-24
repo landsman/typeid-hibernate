@@ -48,13 +48,14 @@ public class TypeIdHibernateGenerator implements IdentifierGenerator {
      */
     private String generateRandomId(String prefix, int length) {
         StringBuilder id = new StringBuilder(prefix).append("_");
+        int uuidCharacters = 8;
 
         // Add a UUID-based component (highly random)
         String uuidPart = UUID.randomUUID().toString().replace("-", "");
-        id.append(uuidPart, 0, Math.min(8, uuidPart.length()));
+        id.append(uuidPart, 0, Math.min(uuidCharacters, uuidPart.length()));
 
         // Add a random component with characters from the alphabet
-        for (int i = 0; i < length - 8; i++) {
+        for (int i = 0; i < length - uuidCharacters; i++) {
             id.append(ALPHABET.charAt(RANDOM.nextInt(ALPHABET.length())));
         }
 
