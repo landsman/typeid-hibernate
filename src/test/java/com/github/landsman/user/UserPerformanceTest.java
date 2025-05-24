@@ -14,7 +14,6 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -184,7 +183,7 @@ class UserPerformanceTest {
                         }
                     })
                     .flatMap(List::stream)
-                    .collect(Collectors.toList());
+                    .toList();
 
             DoubleSummaryStatistics stats = allTimes.stream()
                     .mapToDouble(Long::doubleValue)
