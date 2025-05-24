@@ -1,9 +1,11 @@
 package com.github.landsman.user;
 
 import com.github.landsman.IdTypeId;
+import com.github.landsman.OptimizedTypeIdType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import org.hibernate.annotations.Type;
 
 /**
  * User entity for testing TypeIdHibernate generator.
@@ -14,6 +16,7 @@ public class User {
 
     @Id
     @IdTypeId(prefix = "u")
+    @Type(OptimizedTypeIdType.class)
     private String id;
 
     // Default constructor required by JPA
