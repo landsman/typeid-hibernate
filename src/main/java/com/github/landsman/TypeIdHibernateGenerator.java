@@ -52,7 +52,7 @@ public class TypeIdHibernateGenerator implements IdentifierGenerator {
 
         // Add a UUID-based component (highly random)
         String uuidPart = UUID.randomUUID().toString().replace("-", "");
-        id.append(uuidPart.substring(0, Math.min(8, uuidPart.length())));
+        id.append(uuidPart, 0, Math.min(8, uuidPart.length()));
 
         // Add a random component with characters from the alphabet
         for (int i = 0; i < ID_LENGTH - 8; i++) {
