@@ -12,13 +12,13 @@ import static java.lang.annotation.ElementType.METHOD;
 
 /**
  * Combined annotation for TypeID fields.
- * 
+ * <p>
  * This annotation is a convenience annotation that combines the functionality of:
  * - {@link jakarta.persistence.Id} (JPA primary key)
  * - {@link jakarta.persistence.Column}(unique = true) (database-level uniqueness)
  * - {@link org.hibernate.annotations.Type}(OptimizedTypeIdType.class) (Hibernate type)
- * - {@link TypeIdHibernate} (TypeID generation functionality)
- * 
+ * - {@link IdTypeId} (TypeID generation functionality)
+ * </p>
  * Usage:
  * <pre>
  * {@code
@@ -38,7 +38,7 @@ import static java.lang.annotation.ElementType.METHOD;
  * }
  * </pre>
  */
-@IdGeneratorType(TypeIdHibernateGenerator.class)
+@IdGeneratorType(TypeIdGenerator.class)
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ FIELD, METHOD })
 @Documented

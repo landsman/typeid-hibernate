@@ -15,11 +15,11 @@ public class IdTypeIdTest {
     @Mock
     private SharedSessionContractImplementor session;
 
-    private TypeIdHibernateGenerator generator;
+    private TypeIdGenerator generator;
 
     @BeforeEach
     public void setUp() {
-        generator = new TypeIdHibernateGenerator();
+        generator = new TypeIdGenerator();
     }
 
     @Test

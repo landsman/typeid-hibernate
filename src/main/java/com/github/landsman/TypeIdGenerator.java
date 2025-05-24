@@ -12,9 +12,9 @@ import java.util.UUID;
  * Generator class for creating unique identifiers with a prefix.
  * This class implements the IdentifierGenerator interface to provide a custom identifier generation strategy for entities.
  * 
- * Supports both {@link TypeIdHibernate} and {@link IdTypeId} annotations.
+ * Supports {@link IdTypeId} annotations.
  */
-public class TypeIdHibernateGenerator implements IdentifierGenerator {
+public class TypeIdGenerator implements IdentifierGenerator {
 
     private static final SecureRandom RANDOM = new SecureRandom();
     private static final String ALPHABET = "abcdefghijklmnopqrstuvwxyz0123456789";
@@ -23,7 +23,7 @@ public class TypeIdHibernateGenerator implements IdentifierGenerator {
      * Default constructor.
      * Initializes a new instance of the TypeIdHibernateGenerator.
      */
-    public TypeIdHibernateGenerator() {
+    public TypeIdGenerator() {
         super();
     }
 
@@ -31,16 +31,10 @@ public class TypeIdHibernateGenerator implements IdentifierGenerator {
     public Serializable generate(SharedSessionContractImplementor session, Object obj) throws HibernateException {
         Class<?> entityClass = obj.getClass();
 
-        // First try to get data from @IdTypeId annotation (preferred approach)
+        // First, try to get data from @IdTypeId annotation (preferred approach)
         IdTypeIdData idTypeIdData = getIdTypeIdData(entityClass);
         if (idTypeIdData != null) {
             return generateRandomId(idTypeIdData.prefix, idTypeIdData.length);
-        }
-
-        // Fall back to @TypeIdHibernate annotation (deprecated approach)
-        TypeIdHibernate typeIdHibernate = getTypeIdHibernateData(entityClass);
-        if (typeIdHibernate != null) {
-            return generateRandomId(typeIdHibernate.prefix(), typeIdHibernate.length());
         }
 
         throw new HibernateException("No field annotated with @IdTypeId or @TypeIdHibernate found");
@@ -88,30 +82,8 @@ public class TypeIdHibernateGenerator implements IdentifierGenerator {
     }
 
     /**
-     * Get data from @TypeIdHibernate annotation.
-     * @param entityClass the entity class
-     * @return the TypeIdHibernate annotation or null if not found
-     */
-    private TypeIdHibernate getTypeIdHibernateData(Class<?> entityClass) {
-        for (Field field : entityClass.getDeclaredFields()) {
-            if (field.isAnnotationPresent(TypeIdHibernate.class)) {
-                field.setAccessible(true);
-                return field.getAnnotation(TypeIdHibernate.class);
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Simple data class to hold IdTypeId annotation data.
-     */
-    private static class IdTypeIdData {
-        private final String prefix;
-        private final int length;
-
-        public IdTypeIdData(String prefix, int length) {
-            this.prefix = prefix;
-            this.length = length;
-        }
+         * Simple data class to hold IdTypeId annotation data.
+         */
+        private record IdTypeIdData(String prefix, int length) {
     }
 }
