@@ -1,4 +1,4 @@
-package com.github.landsman;
+package com.github.landsman.config;
 
 import org.flywaydb.core.Flyway;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
