@@ -15,11 +15,11 @@ public class TypeIdHibernateGeneratorTest {
     @Mock
     private SharedSessionContractImplementor session;
 
-    private TypeIdHibernateGenerator generator;
+    private TypeIdGenerator generator;
 
     @BeforeEach
     public void setUp() {
-        generator = new TypeIdHibernateGenerator();
+        generator = new TypeIdGenerator();
     }
 
     @Test
@@ -108,6 +108,6 @@ public class TypeIdHibernateGeneratorTest {
 }
 
 class CustomEntity {
-    @TypeIdHibernate(prefix = "c", length = 8)
+    @IdTypeId(prefix = "c", length = 8)
     private String id;
 }
