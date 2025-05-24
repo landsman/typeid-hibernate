@@ -6,6 +6,7 @@ import org.hibernate.usertype.UserType;
 
 import java.io.Serializable;
 import java.sql.*;
+import java.util.Objects;
 
 public class OptimizedTypeIdType implements UserType<String>, EnhancedUserType<String> {
 
@@ -21,9 +22,7 @@ public class OptimizedTypeIdType implements UserType<String>, EnhancedUserType<S
 
     @Override
     public boolean equals(String x, String y) {
-        if (x == y) return true;
-        if (x == null || y == null) return false;
-        return x.equals(y);
+        return Objects.equals(x, y);
     }
 
     @Override
