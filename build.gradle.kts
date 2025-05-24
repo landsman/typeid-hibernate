@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "com.github.landsman"
-version = "0.0.1"
+version = "0.1.0"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_17
@@ -17,7 +17,6 @@ repositories {
 
 dependencies {
     implementation("org.hibernate.orm:hibernate-core:7.0.0.Final")
-    implementation("de.fxlae:typeid-java:0.3.1")
 
     testImplementation(platform("org.junit:junit-bom:5.11.4"))
     testImplementation("org.junit.jupiter:junit-jupiter")
