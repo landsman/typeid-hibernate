@@ -11,6 +11,8 @@ import java.util.UUID;
 /**
  * Generator class for creating unique identifiers with a prefix.
  * This class implements the IdentifierGenerator interface to provide a custom identifier generation strategy for entities.
+ * 
+ * Supports both {@link TypeIdHibernate} and {@link IdTypeId} annotations.
  */
 public class TypeIdHibernateGenerator implements IdentifierGenerator {
 
@@ -28,14 +30,20 @@ public class TypeIdHibernateGenerator implements IdentifierGenerator {
     @Override
     public Serializable generate(SharedSessionContractImplementor session, Object obj) throws HibernateException {
         Class<?> entityClass = obj.getClass();
-        TypeIdHibernate data = getDataFromAnnotation(entityClass);
 
-        assert data != null;
-        if (data.prefix() == null) {
-            throw new HibernateException("No field annotated with @TypeIdHibernate found");
+        // First try to get data from @IdTypeId annotation (preferred approach)
+        IdTypeIdData idTypeIdData = getIdTypeIdData(entityClass);
+        if (idTypeIdData != null) {
+            return generateRandomId(idTypeIdData.prefix, idTypeIdData.length);
         }
 
-        return generateRandomId(data.prefix(), data.length());
+        // Fall back to @TypeIdHibernate annotation (deprecated approach)
+        TypeIdHibernate typeIdHibernate = getTypeIdHibernateData(entityClass);
+        if (typeIdHibernate != null) {
+            return generateRandomId(typeIdHibernate.prefix(), typeIdHibernate.length());
+        }
+
+        throw new HibernateException("No field annotated with @IdTypeId or @TypeIdHibernate found");
     }
 
     /**
@@ -44,6 +52,7 @@ public class TypeIdHibernateGenerator implements IdentifierGenerator {
      * at the character level.
      * 
      * @param prefix the prefix for the ID
+     * @param length the length of the random part
      * @return a random ID with the given prefix
      */
     private String generateRandomId(String prefix, int length) {
@@ -63,10 +72,27 @@ public class TypeIdHibernateGenerator implements IdentifierGenerator {
     }
 
     /**
-     * Get annotation data @TypeIdHibernate.
+     * Get data from @IdTypeId annotation.
      * @param entityClass the entity class
+     * @return the IdTypeIdData or null if not found
      */
-    private TypeIdHibernate getDataFromAnnotation(Class<?> entityClass) {
+    private IdTypeIdData getIdTypeIdData(Class<?> entityClass) {
+        for (Field field : entityClass.getDeclaredFields()) {
+            if (field.isAnnotationPresent(IdTypeId.class)) {
+                field.setAccessible(true);
+                IdTypeId annotation = field.getAnnotation(IdTypeId.class);
+                return new IdTypeIdData(annotation.prefix(), annotation.length());
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Get data from @TypeIdHibernate annotation.
+     * @param entityClass the entity class
+     * @return the TypeIdHibernate annotation or null if not found
+     */
+    private TypeIdHibernate getTypeIdHibernateData(Class<?> entityClass) {
         for (Field field : entityClass.getDeclaredFields()) {
             if (field.isAnnotationPresent(TypeIdHibernate.class)) {
                 field.setAccessible(true);
@@ -74,5 +100,18 @@ public class TypeIdHibernateGenerator implements IdentifierGenerator {
             }
         }
         return null;
+    }
+
+    /**
+     * Simple data class to hold IdTypeId annotation data.
+     */
+    private static class IdTypeIdData {
+        private final String prefix;
+        private final int length;
+
+        public IdTypeIdData(String prefix, int length) {
+            this.prefix = prefix;
+            this.length = length;
+        }
     }
 }
