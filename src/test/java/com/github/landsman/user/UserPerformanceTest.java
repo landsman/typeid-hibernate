@@ -5,8 +5,14 @@ import jakarta.persistence.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.*;
 import java.util.concurrent.*;
@@ -25,10 +31,15 @@ class UserPerformanceTest {
     @PersistenceUnit
     private EntityManagerFactory entityManagerFactory;
 
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private PlatformTransactionManager transactionManager;
+
     @BeforeEach
     public void cleanDatabase() {
-        entityManager.createQuery("DELETE FROM User").executeUpdate();
-        entityManager.flush();
+        userRepository.deleteAll();
     }
 
     @Test
@@ -38,12 +49,11 @@ class UserPerformanceTest {
         List<Long> batchTimes = new ArrayList<>();
 
         // Warm up
+        List<User> warmupUsers = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
-            User user = new User();
-            entityManager.persist(user);
+            warmupUsers.add(new User());
         }
-        entityManager.flush();
-        entityManager.clear();
+        userRepository.saveAll(warmupUsers);
 
         // Test batched inserts
         for (int batch = 0; batch < totalUsers/batchSize; batch++) {
@@ -53,11 +63,7 @@ class UserPerformanceTest {
             }
 
             long startTime = System.nanoTime();
-            for (User user : users) {
-                entityManager.persist(user);
-            }
-            entityManager.flush();
-            entityManager.clear();
+            userRepository.saveAll(users);
             long endTime = System.nanoTime();
 
             batchTimes.add((endTime - startTime) / 1_000_000L); // Convert to milliseconds
@@ -83,8 +89,7 @@ class UserPerformanceTest {
                 stats.getSum());
 
         // Count the number of users in the database
-        Long count = entityManager.createQuery("SELECT COUNT(u) FROM User u", Long.class)
-                .getSingleResult();
+        long count = userRepository.count();
         assertEquals(totalUsers + 10, count); // Add 10 for the warm-up users
     }
 
@@ -94,12 +99,9 @@ class UserPerformanceTest {
         int testDataSize = 100; // Reduced for faster test execution
         List<User> users = new ArrayList<>();
         for (int i = 0; i < testDataSize; i++) {
-            User user = new User();
-            entityManager.persist(user);
-            users.add(user);
+            users.add(new User());
         }
-        entityManager.flush();
-        entityManager.clear();
+        users = userRepository.saveAll(users);
 
         // Test different query patterns
         Map<String, Long> queryTimes = new HashMap<>();
@@ -107,17 +109,15 @@ class UserPerformanceTest {
         // Test 1: Find by ID
         String randomId = users.get(new Random().nextInt(users.size())).getId();
         long startTime = System.nanoTime();
-        entityManager.find(User.class, randomId);
+        userRepository.findById(randomId);
         queryTimes.put("Find by ID", (System.nanoTime() - startTime) / 1_000_000L);
 
         // Test 2: Find all (with limit)
         startTime = System.nanoTime();
-        entityManager.createQuery("SELECT u FROM User u", User.class)
-                .setMaxResults(100)
-                .getResultList();
+        userRepository.findAll(PageRequest.of(0, 100));
         queryTimes.put("Find all (limit 100)", (System.nanoTime() - startTime) / 1_000_000L);
 
-        // Test 3: ID prefix search
+        // Test 3: ID prefix search (using EntityManager as JpaRepository doesn't have a direct method for LIKE queries)
         startTime = System.nanoTime();
         entityManager.createQuery("SELECT u FROM User u WHERE u.id LIKE :prefix", User.class)
                 .setParameter("prefix", "u_%")
@@ -139,33 +139,35 @@ class UserPerformanceTest {
         List<Future<List<Long>>> futures = new ArrayList<>();
         ExecutorService executorService = Executors.newFixedThreadPool(threadsCount);
 
+        // Create a shared UserRepository reference
+        final UserRepository sharedUserRepository = userRepository;
+        // Create a shared TransactionManager reference
+        final PlatformTransactionManager sharedTransactionManager = transactionManager;
+
         try {
             // Create and submit tasks
             for (int i = 0; i < threadsCount; i++) {
                 futures.add(executorService.submit(() -> {
                     List<Long> threadTimes = new ArrayList<>();
-                    // Create a new EntityManager for each thread
-                    EntityManager threadEntityManager = entityManagerFactory.createEntityManager();
-                    try {
-                        threadEntityManager.getTransaction().begin();
+                    // Create a new TransactionTemplate for each thread
+                    TransactionTemplate transactionTemplate = new TransactionTemplate(sharedTransactionManager);
+
+                    // Execute in a transaction
+                    transactionTemplate.execute(status -> {
                         try {
                             for (int j = 0; j < recordsPerThread; j++) {
                                 long startTime = System.nanoTime();
                                 User user = new User();
-                                threadEntityManager.persist(user);
-                                threadEntityManager.flush();
+                                sharedUserRepository.save(user);
                                 threadTimes.add((System.nanoTime() - startTime) / 1_000_000L);
                             }
-                            threadEntityManager.getTransaction().commit();
+                            return null;
                         } catch (Exception e) {
-                            if (threadEntityManager.getTransaction().isActive()) {
-                                threadEntityManager.getTransaction().rollback();
-                            }
+                            status.setRollbackOnly();
                             throw e;
                         }
-                    } finally {
-                        threadEntityManager.close();
-                    }
+                    });
+
                     latch.countDown();
                     return threadTimes;
                 }));
@@ -204,8 +206,7 @@ class UserPerformanceTest {
                 stats.getSum());
 
             // Count the number of users in the database
-            Long count = entityManager.createQuery("SELECT COUNT(u) FROM User u", Long.class)
-                    .getSingleResult();
+            long count = userRepository.count();
             assertEquals(threadsCount * recordsPerThread, count);
         } finally {
             executorService.shutdown();

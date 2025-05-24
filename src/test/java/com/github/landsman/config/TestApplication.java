@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Import;
  * Test application class for Spring Boot tests.
  * This class serves as the entry point for component scanning.
  */
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = "com.github.landsman")
 @Import(TestConfig.class)
 public class TestApplication {
 
