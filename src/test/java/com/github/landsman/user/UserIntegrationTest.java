@@ -39,7 +39,7 @@ class UserIntegrationTest {
         user = userRepository.save(user);
 
         assertNotNull(user.getId());
-        assertTrue(user.getId().startsWith("u_"));
+        assertTrue(user.getId().getValue().startsWith("u_"));
     }
 
     @Test
@@ -50,13 +50,12 @@ class UserIntegrationTest {
         user1 = userRepository.save(user1);
 
         // Get the ID of the first user
-        String userId = user1.getId();
-        assertNotNull(userId);
+        assertNotNull(user1.getId().getValue());
 
         // Try to save another user with the same ID using EntityManager
         // We use EntityManager directly here because UserRepository might handle duplicates differently
         User user2 = new User();
-        user2.setId(userId); // Force the same ID
+        user2.setId(user1.getId()); // Force the same ID
 
         // This should throw an exception due to unique constraint violation
         assertThrows(PersistenceException.class, () -> {
@@ -89,7 +88,7 @@ class UserIntegrationTest {
         // verify uniqueness via a hash set as well as database
         Set<String> generatedIds = new HashSet<>();
         for (User savedUser : allUsers) {
-            String id = savedUser.getId();
+            String id = savedUser.getId().getValue();
             assertTrue(id.startsWith("u_"));
             assertTrue(generatedIds.add(id), "Generated ID should be unique");
         }

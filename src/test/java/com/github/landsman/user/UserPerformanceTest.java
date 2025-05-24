@@ -101,7 +101,7 @@ class UserPerformanceTest {
         Map<String, Long> queryTimes = new HashMap<>();
 
         // Test 1: Find by ID
-        String randomId = users.get(new Random().nextInt(users.size())).getId();
+        String randomId = users.get(new Random().nextInt(users.size())).getId().getValue();
         long startTime = System.nanoTime();
         userRepository.findById(randomId);
         queryTimes.put("Find by ID", (System.nanoTime() - startTime) / 1_000_000L);
