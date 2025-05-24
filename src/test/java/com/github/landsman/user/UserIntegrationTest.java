@@ -4,6 +4,7 @@ import com.github.landsman.config.TestApplication;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.PersistenceException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -23,6 +24,12 @@ class UserIntegrationTest {
     @PersistenceContext
     private EntityManager entityManager;
 
+    @BeforeEach
+    public void cleanDatabase() {
+        entityManager.createQuery("DELETE FROM User").executeUpdate();
+        entityManager.flush();
+    }
+
     @Test
     public void testIdGeneration() {
         User user = new User();
@@ -34,6 +41,7 @@ class UserIntegrationTest {
     }
 
     @Test
+    @Rollback
     public void testDatabaseUniqueConstraint() {
         // Save the first user using EntityManager
         User user1 = new User();

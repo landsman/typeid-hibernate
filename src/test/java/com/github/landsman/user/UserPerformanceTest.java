@@ -2,6 +2,7 @@ package com.github.landsman.user;
 
 import com.github.landsman.config.TestApplication;
 import jakarta.persistence.*;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -23,6 +24,12 @@ class UserPerformanceTest {
 
     @PersistenceUnit
     private EntityManagerFactory entityManagerFactory;
+
+    @BeforeEach
+    public void cleanDatabase() {
+        entityManager.createQuery("DELETE FROM User").executeUpdate();
+        entityManager.flush();
+    }
 
     @Test
     public void testBulkInsertPerformance() {

@@ -12,7 +12,7 @@ import org.hibernate.annotations.Type;
  * User entity for testing TypeIdHibernate generator.
  */
 @Entity
-@Table(name = "user")
+@Table(name = "\"user\"")
 public class User {
 
     @Id
