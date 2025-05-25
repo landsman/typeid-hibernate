@@ -101,9 +101,9 @@ class UserPerformanceTest {
         Map<String, Long> queryTimes = new HashMap<>();
 
         // Test 1: Find by ID
-        String randomId = users.get(new Random().nextInt(users.size())).getId().getValue();
+        User randomUser = users.get(new Random().nextInt(users.size()));
         long startTime = System.nanoTime();
-        userRepository.findById(randomId);
+        userRepository.findById(randomUser.getId());
         queryTimes.put("Find by ID", (System.nanoTime() - startTime) / 1_000_000L);
 
         // Test 2: Find all (with limit)
@@ -111,12 +111,15 @@ class UserPerformanceTest {
         userRepository.findAll(PageRequest.of(0, 100));
         queryTimes.put("Find all (limit 100)", (System.nanoTime() - startTime) / 1_000_000L);
 
-        // Test 3: ID prefix search (using EntityManager as JpaRepository doesn't have a direct method for LIKE queries)
+        // Test 3: Find all and filter by prefix (since LIKE queries on TypeId are not directly supported)
         startTime = System.nanoTime();
-        entityManager.createQuery("SELECT u FROM User u WHERE u.id LIKE :prefix", User.class)
-                .setParameter("prefix", "u_%")
-                .setMaxResults(100)
-                .getResultList();
+        List<User> allUsers = userRepository.findAll(PageRequest.of(0, 1000)).getContent();
+        List<User> filteredUsers = allUsers.stream()
+                .filter(u -> u.getId().getValue().startsWith("u_"))
+                .limit(100)
+                .toList();
+        // Just to make sure we have some results
+        assertFalse(filteredUsers.isEmpty(), "Should find at least one user with prefix 'u_'");
         queryTimes.put("ID prefix search", (System.nanoTime() - startTime) / 1_000_000L);
 
         // Print results
