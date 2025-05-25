@@ -34,7 +34,15 @@ public class TypeIdGenerator implements IdentifierGenerator {
         // First, try to get data from @IdTypeId annotation (preferred approach)
         IdTypeIdData idTypeIdData = getIdTypeIdData(entityClass);
         if (idTypeIdData != null) {
-            return generateRandomId(idTypeIdData.prefix, idTypeIdData.length);
+            String randomId = generateRandomId(idTypeIdData.prefix, idTypeIdData.length);
+
+            // Check if the field is of type TypeId
+            Field idField = findIdTypeIdField(entityClass);
+            if (idField != null && idField.getType() == TypeId.class) {
+                return TypeId.of(randomId);
+            }
+
+            return randomId;
         }
 
         throw new HibernateException("No field annotated with @IdTypeId or @TypeIdHibernate found");
@@ -76,6 +84,21 @@ public class TypeIdGenerator implements IdentifierGenerator {
                 field.setAccessible(true);
                 IdTypeId annotation = field.getAnnotation(IdTypeId.class);
                 return new IdTypeIdData(annotation.prefix(), annotation.length());
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Find the field annotated with @IdTypeId.
+     * @param entityClass the entity class
+     * @return the field or null if not found
+     */
+    private Field findIdTypeIdField(Class<?> entityClass) {
+        for (Field field : entityClass.getDeclaredFields()) {
+            if (field.isAnnotationPresent(IdTypeId.class)) {
+                field.setAccessible(true);
+                return field;
             }
         }
         return null;

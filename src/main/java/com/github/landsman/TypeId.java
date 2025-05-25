@@ -1,8 +1,9 @@
 package com.github.landsman;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-public class TypeId {
+public class TypeId implements Serializable {
     private final String value;
 
     private TypeId(String value) {
