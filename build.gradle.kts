@@ -19,7 +19,7 @@ dependencies {
     implementation("org.hibernate.orm:hibernate-core:7.0.0.Final")
     implementation("de.fxlae:typeid-java:0.3.1")
 
-    testImplementation(platform("org.junit:junit-bom:5.11.4"))
+    testImplementation(platform("org.junit:junit-bom:5.13.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation("org.mockito:mockito-core:5.18.0")
     testImplementation("org.mockito:mockito-junit-jupiter:5.18.0")
