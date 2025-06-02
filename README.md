@@ -33,11 +33,37 @@ dependencies {
 
 ## Usage
 
+### Recommended Usage
+
+Use the `@IdTypeId` annotation for a clean, simplified approach:
+
 ```java
 public class TestUserEntity {
-    @Id
-    @TypeIdHibernate(prefix = "u")
+    @IdTypeId(prefix = "u")
     private String id;
 }
 ```
 
+The `@IdTypeId` annotation combines the functionality of:
+- `@Id` (JPA primary key)
+- `@Column(unique = true)` (database-level uniqueness)
+- `@Type(OptimizedTypeIdType.class)` (Hibernate type)
+- TypeID generation functionality
+
+This allows you to use a single annotation instead of four separate ones, making your code cleaner and more maintainable.
+
+### Legacy Usage (Deprecated)
+
+The following approach is deprecated and should be avoided in new code:
+
+```java
+public class TestUserEntity {
+    @Id
+    @Column(unique = true) // This ensures database-level uniqueness
+    @Type(OptimizedTypeIdType.class)
+    @TypeIdHibernate(prefix = "u") // Deprecated
+    private String id;
+}
+```
+
+The `@TypeIdHibernate` annotation has been deprecated in favor of `@IdTypeId`, which provides the same functionality with a single annotation.
