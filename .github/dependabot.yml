@@ -9,3 +9,16 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "weekly"
+    # Wait a week before proposing a release, so a compromised or yanked version
+    # is caught upstream before it is proposed here. Security updates ignore it.
+    cooldown:
+      default-days: 7
+
+  # Nothing watched the workflows, so the action versions above only ever moved
+  # when someone noticed. Major tags, which is what Dependabot bumps.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    cooldown:
+      default-days: 7

@@ -41,3 +41,16 @@ jobs:
 
       - name: 'Build and Test with Gradle'
         run: ./gradlew build test
+
+  # The scan lives in landsman/config and is called, not copied: that repo is
+  # public, so this needs nothing configured at either end.
+  #
+  # p/java because that is what is here — there is no Kotlin, and p/gradle does
+  # not exist in the registry. p/secrets is named even though the shared workflow
+  # adds it to every caller, because `packs` replaces its default rather than
+  # extending it: without it, this would scan for no secrets at all until that
+  # baseline lands. Naming a pack twice costs nothing.
+  security:
+    uses: landsman/config/.github/workflows/semgrep.yml@main
+    with:
+      packs: p/secrets p/java
