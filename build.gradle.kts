@@ -1,14 +1,32 @@
 plugins {
     id("java")
     id("maven-publish")
+    id("org.springframework.boot") version "3.5.0"
+    id("io.spring.dependency-management") version "1.1.7"
+}
+
+// Disable bootJar as this is a library project without a main class
+tasks.getByName<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
+    enabled = false
+}
+
+// Enable jar task for library projects
+tasks.getByName<Jar>("jar") {
+    enabled = true
 }
 
 group = "com.github.landsman"
-version = "0.0.1"
+version = "0.1.0"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
+
+    // Ensure the library is compatible with Java 23
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
+        // This allows the code to be run on Java 23 while being compiled with Java 17 compatibility
+    }
 }
 
 repositories {
@@ -17,12 +35,22 @@ repositories {
 
 dependencies {
     implementation("org.hibernate.orm:hibernate-core:7.0.0.Final")
-    implementation("de.fxlae:typeid-java:0.3.1")
 
     testImplementation(platform("org.junit:junit-bom:5.11.4"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation("org.mockito:mockito-core:5.18.0")
     testImplementation("org.mockito:mockito-junit-jupiter:5.18.0")
+
+    // Spring Data JPA dependencies for integration tests
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.springframework.boot:spring-boot-starter-data-jpa")
+
+    testImplementation("org.postgresql:postgresql")
+    testImplementation("org.testcontainers:postgresql:1.21.0")
+    testImplementation("org.flywaydb:flyway-core:9.22.3")
+
+    testImplementation("org.testcontainers:junit-jupiter:1.18.3")
+    testImplementation("org.assertj:assertj-core")
 }
 
 tasks.withType<Test> {
